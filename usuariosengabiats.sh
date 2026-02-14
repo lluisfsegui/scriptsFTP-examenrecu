@@ -29,7 +29,7 @@ mkdir -p /var/erebor/anonim
 chown :ftp_permisos /var/erebor/anonim
 
 # Dar permisos de lectura y escritura al grupo
-chmod 770 /var/erebor/anonim
+chmod 775 /var/erebor/anonim
 
 # -------------------------------
 # TERCERA PARTE DEL EJERCICIO
