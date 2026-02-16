@@ -8,27 +8,38 @@ apt update
 apt install -y vsftpd
 
 # Crear grups
-groupadd ftp_permisos
-groupadd ftp_sin_permisos
+groupadd ftp_engabiats
+groupadd ftp_noengabiats
+groupadd ftp_permisos   # grup amb permisos de lectura/escriptura
 
 # Crear usuaris i assignar-los als grups
-useradd -m -s /bin/bash gandalf   -G ftp_permisos
-useradd -m -s /bin/bash celeborn  -G ftp_permisos
-useradd -m -s /bin/bash radagast  -G ftp_sin_permisos
-useradd -m -s /bin/bash peregrin  -G ftp_sin_permisos
+useradd -m -s /bin/bash laracroft   -G ftp_engabiats
+useradd -m -s /bin/bash link  -G ftp_engabiats
+useradd -m -s /bin/bash ashketchum  -G ftp_noengabiats,ftp_permisos
+useradd -m -s /bin/bash ratchel  -G ftp_noengabiats,ftp_permisos
 
-echo "gandalf:12345678" | chpasswd
-echo "celeborn:12345678" | chpasswd
-echo "radagast:12345678" | chpasswd
-echo "peregrin:12345678" | chpasswd
+echo "laracroft:12345678" | chpasswd
+echo "link:12345678" | chpasswd
+echo "ashketchum:12345678" | chpasswd
+echo "ratchel:12345678" | chpasswd
 
 # -----------------------------------------
-# DIRECTORI ANÒNIM (si és necessari)
+# DIRECTORIS AMB PERMISOS
 # -----------------------------------------
 
-mkdir -p /var/erebor/anonim
-chown :ftp_permisos /var/erebor/anonim
-chmod 775 /var/erebor/anonim
+mkdir -p /srv/bentley/documents
+mkdir -p /srv/bentley/backup
+
+# Usuari anònim només lectura
+chown -R ftp:ftp /srv/bentley/documents
+chmod -R 755 /srv/bentley/documents
+
+# Usuaris NO engabiats amb lectura i escriptura
+chown -R root:ftp_permisos /srv/bentley/backup
+chmod -R 775 /srv/bentley/backup
+
+chown -R root:ftp_permisos /srv/bentley/documents
+chmod -R 775 /srv/bentley/documents
 
 # -----------------------------------------
 # CONFIGURACIÓ VSFTPD
@@ -39,6 +50,19 @@ listen=YES
 local_enable=YES
 write_enable=YES
 
+# -------------------------
+# USUARI ANÒNIM
+# -------------------------
+anonymous_enable=YES
+anon_root=/srv/bentley/documents
+anon_upload_enable=NO
+anon_mkdir_write_enable=NO
+anon_other_write_enable=NO
+
+# -------------------------
+# USUARIS LOCALS
+# -------------------------
+
 # Engabiar usuaris locals per defecte
 chroot_local_user=YES
 
@@ -46,7 +70,6 @@ chroot_local_user=YES
 chroot_list_enable=YES
 chroot_list_file=/etc/vsftpd.chroot_list
 
-# Opcions recomanades
 allow_writeable_chroot=YES
 pam_service_name=vsftpd
 EOF
@@ -55,8 +78,8 @@ EOF
 # CREAR LLISTA D'USUARIS NO ENGABIATS
 # -----------------------------------------
 
-echo "radagast"  > /etc/vsftpd.chroot_list
-echo "peregrin" >> /etc/vsftpd.chroot_list
+echo "ashketchum"  > /etc/vsftpd.chroot_list
+echo "ratchel" >> /etc/vsftpd.chroot_list
 
 # -----------------------------------------
 # REINICIAR SERVEI
